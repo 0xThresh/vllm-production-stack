@@ -52,6 +52,6 @@ jobs:
               echo "No charts to release"
               break
             fi
-            REPO=(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
+            REPO=(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')
             helm push "${pkg}" oci://ghcr.io/$REPO
           done
