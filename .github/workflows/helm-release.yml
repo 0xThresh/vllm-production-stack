@@ -25,10 +25,10 @@ jobs:
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
-      - name: Add Dependency Repos
-        run: |
-          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-          helm repo add datadog-crds https://helm.datadoghq.com
+      # Could add Prometheus as a dependent chart here if desired    
+      # - name: Add Dependency Repos
+      #   run: |
+      #     helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.7.0
