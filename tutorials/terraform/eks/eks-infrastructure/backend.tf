@@ -3,7 +3,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "<=5.70.0"
+      version = "~> 5.0"
     }
   }
   #   Update and uncomment block below if storing state in S3

@@ -21,7 +21,7 @@ module "vllm-vpc" {
 # Security group to allow access to Open WebUI
 resource "aws_security_group" "vllm-ingress-sg" {
   name   = "vllm-ingress-sg"
-  vpc_id = module.vpc.vpc_id
+  vpc_id = module.vllm-vpc.vpc_id
 
   ingress {
     from_port        = 443

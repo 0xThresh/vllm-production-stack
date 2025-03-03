@@ -1,21 +1,15 @@
-# Gets the latest AL2023 EKS AMI with GPU support
+# Gets the latest EKS AMI with GPU support
 data "aws_ami" "eks_gpu_ami" {
   most_recent = true
+  owners      = ["amazon"]
 
   filter {
     name   = "name"
-    values = ["Amazon Linux 2023 (x86_64) Nvidia (AL2023_x86_64_NVIDIA)*"]
+    values = ["amazon-eks-gpu-node-${local.cluster_version}-*"]
   }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  owners = ["amazon"]
 }
 
-# Gets the latest regular AWS EKS AMI
+# Gets the latest regular AWS EKS AMI for non-GPU workloads
 data "aws_ami" "eks_al2_ami" {
   most_recent = true
   owners      = ["amazon"]
@@ -71,9 +65,9 @@ module "vllm-eks" {
   }
 
   # Networking
-  vpc_id                      = module.vpc.vpc_id
-  subnet_ids                  = module.vpc.private_subnets
-  control_plane_subnet_ids    = module.vpc.private_subnets
+  vpc_id                      = module.vllm-vpc.vpc_id
+  subnet_ids                  = module.vllm-vpc.private_subnets
+  control_plane_subnet_ids    = module.vllm-vpc.private_subnets
   cluster_security_group_name = "vllm-eks-cluster"
   node_security_group_name    = "vllm-eks-nodes"
 
@@ -84,7 +78,7 @@ module "vllm-eks" {
       from_port                = 8080
       to_port                  = 8080
       type                     = "ingress"
-      source_security_group_id = aws_security_group.open-webui-ingress-sg.id
+      source_security_group_id = aws_security_group.vllm-ingress-sg.id
     }
   }
 

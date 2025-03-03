@@ -99,3 +99,9 @@ helm/examples
 src/vllm_router/_version.py
 
 /tutorials/assets/private.yaml
+
+# terraform files
+.terraform.lock.hcl
+**/.terraform/*
+terraform.tfstate
+terraform.tfstate.backup
