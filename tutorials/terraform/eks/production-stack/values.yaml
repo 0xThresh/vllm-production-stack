@@ -29,11 +29,10 @@ routerSpec:
       alb.ingress.kubernetes.io/ingress.class: "alb"
       alb.ingress.kubernetes.io/target-type: "ip"
       alb.ingress.kubernetes.io/scheme: "internet-facing"
-      alb.ingress.kubernetes.io/listen-ports: "HTTP: 80" # TODO: Fix this, needs to be JSON block
+      alb.ingress.kubernetes.io/listen-ports: "{HTTP: 80}"
 
-
-    hosts:
-      - host: router.example.com
-        paths:
-          - path: /
-            pathType: Prefix
+    # hosts:
+    #   - host: router.example.com
+    #     paths:
+    #       - path: /
+    #         pathType: Prefix

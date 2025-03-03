@@ -166,7 +166,7 @@ terraform plan
 If everything is set up correctly, you should now see a Terraform plan, with the plan output ending with the lines below:
 
 ```bash
-Plan: 80 to add, 0 to change, 0 to destroy.
+Plan: 3 to add, 0 to change, 0 to destroy.
 ```
 
 If you're ready to build the resources, you can run:
@@ -178,7 +178,7 @@ terraform apply
 The plan will be executed again, and you should see the dialogue below:
 
 ```bash
-Plan: 80 to add, 0 to change, 0 to destroy.
+Plan: 3 to add, 0 to change, 0 to destroy.
 
 Do you want to perform these actions?
   Terraform will perform the actions described above.

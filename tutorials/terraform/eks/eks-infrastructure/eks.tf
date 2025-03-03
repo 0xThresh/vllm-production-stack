@@ -84,6 +84,53 @@ module "vllm-eks" {
 
   # EKS Managed Node Groups
   eks_managed_node_groups = {
+    mgmt = {
+      # Number of instances to deploy
+      min_size     = 1
+      max_size     = 1
+      desired_size = 1
+
+      # AMI and instance type
+      ami_id         = data.aws_ami.eks_al2_ami.id
+      instance_types = ["m5a.large"]
+      capacity_type  = "ON_DEMAND"
+
+      disk_size = 50
+      block_device_mappings = {
+        xvda = {
+          device_name = "/dev/xvda"
+          ebs = {
+            volume_size           = 50
+            volume_type           = "gp3"
+            delete_on_termination = true
+          }
+        }
+      }
+
+      # Adds IAM permissions to node role
+      create_iam_role = true
+      iam_role_name   = "mgmt-eks-node-group"
+      iam_role_additional_policies = {
+        AmazonALBIngressController   = aws_iam_policy.aws_load_balancer_controller.arn
+        AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+      }
+
+      # User data bootstraps EKS node and installs AWS CLI
+      pre_bootstrap_user_data = <<-EOT
+      #!/bin/bash
+      /etc/eks/bootstrap.sh ${local.cluster_name}
+      EOT
+
+      # Adds Kubernetes labels used for pod placement
+      node_group_labels = {
+        "app" = "mgmt-node"
+      }
+
+      tags = {
+        "kubernetes.io/cluster/${local.cluster_name}" = "owned"
+      }
+    }
+
     router = {
       # Number of instances to deploy
       min_size     = 1

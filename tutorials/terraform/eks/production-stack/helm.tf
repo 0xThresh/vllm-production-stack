@@ -9,7 +9,7 @@ resource "helm_release" "nvidia_device_plugin" {
 }
 
 
-# ALB ingress controller
+# ALB ingress controller chart
 resource "helm_release" "aws_load_balancer_controller" {
   name       = "aws-load-balancer-controller"
   repository = "https://aws.github.io/eks-charts"
@@ -33,14 +33,7 @@ resource "helm_release" "aws_load_balancer_controller" {
   }
 }
 
-# External DNS controller
-resource "helm_release" "external_dns" {
-  name       = "external-dns"
-  repository = "https://kubernetes-sigs.github.io/external-dns/"
-  chart      = "external-dns"
-  namespace  = "kube-system"
-}
-
+# vLLM Production Stack chart
 resource "helm_release" "vllm_production_stack" {
   name       = "vllm-production-stack"
   depends_on = [
@@ -53,9 +46,10 @@ resource "helm_release" "vllm_production_stack" {
   namespace        = "vllm"
   create_namespace = true
   version          = "0.0.11"
+  values           = [file("${path.module}/values.yaml")]
 
   set {
     name  = "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/security-groups"
-    value = aws_security_group.vllm-ingress-sg.id
+    value = data.terraform_remote_state.local.outputs.ingress_sg_id
   }
 }
