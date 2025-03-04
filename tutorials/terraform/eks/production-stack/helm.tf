@@ -4,8 +4,13 @@ resource "helm_release" "nvidia_device_plugin" {
 
   repository = "https://nvidia.github.io/k8s-device-plugin"
   chart      = "nvidia-device-plugin"
-  namespace  = "kube-system"
-  version    = "0.17.0"
+  namespace  = "kube-addons"
+  create_namespace = "true"
+
+  set {
+    name = "version"
+    value = "0.17.0"
+  }
 }
 
 
@@ -14,12 +19,13 @@ resource "helm_release" "aws_load_balancer_controller" {
   name       = "aws-load-balancer-controller"
   repository = "https://aws.github.io/eks-charts"
   chart      = "aws-load-balancer-controller"
-  namespace  = "kube-system"
+  namespace  = "kube-addons"
   version    = "1.7.2"
+  create_namespace = "true"
 
   set {
     name  = "clusterName"
-    value = "genai-cluster"
+    value = "vllm-inference"
   }
 
   set {

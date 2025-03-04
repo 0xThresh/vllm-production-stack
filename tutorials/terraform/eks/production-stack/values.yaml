@@ -1,5 +1,9 @@
 servingEngineSpec:
   runtimeClassName: ""
+
+  labels:
+    app: "vllm-inference"
+
   modelSpec:
   - name: "opt125m"
     repository: "vllm/vllm-openai"
@@ -8,16 +12,42 @@ servingEngineSpec:
 
     replicaCount: 1
 
-    requestCPU: 6
-    requestMemory: "16Gi"
+    requestCPU: 1
+    requestMemory: "4Gi"
     requestGPU: 1
 
     pvcStorage: "10Gi"
     pvcAccessMode:
       - ReadWriteOnce
+    storageClass: "gp2"
+
+    nodeSelectorTerms:
+      - matchExpressions:
+        - key: nvidia.com/gpu
+          operator: "In"
+          values:
+          - "present"
+        - key: app
+          operator: "In"
+          values:
+          - "vllm-inference"
 
 routerSpec:
   enableRouter: true
+
+  replicas: 1
+  resources:
+    requests:
+      cpu: 1
+      memory: 4G
+    limits:
+      cpu: 2
+      memory: 8G
+
+  containerPort: 8000
+  servicePort: 80
+
+
   ingress:
     # Builds the ingress resource on the router service
     enabled: true
@@ -26,13 +56,10 @@ routerSpec:
     # AWS ALB annotations to auto-deploy ALB when router ingress is created
     annotations:
       alb.ingress.kubernetes.io/load-balancer-name: "vllm-router-alb"
-      alb.ingress.kubernetes.io/ingress.class: "alb"
+      alb.ingress.kubernetes.io/healthcheck-path: "/health"
+      alb.ingress.kubernetes.io/success-codes: "200"
+      alb.ingress.kubernetes.io/ip-address-type: "ipv4"
       alb.ingress.kubernetes.io/target-type: "ip"
       alb.ingress.kubernetes.io/scheme: "internet-facing"
-      alb.ingress.kubernetes.io/listen-ports: "{HTTP: 80}"
-
-    # hosts:
-    #   - host: router.example.com
-    #     paths:
-    #       - path: /
-    #         pathType: Prefix
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+      kubernetes.io/ingress.class: "alb"

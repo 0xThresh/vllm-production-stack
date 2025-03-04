@@ -224,6 +224,9 @@ module "vllm-eks" {
       # Adds Kubernetes labels used for pod placement
       node_group_labels = {
         "app" = "vllm-inference"
+        "feature.node.kubernetes.io/cpu-model.vendor_id" = "NVIDIA"
+        "feature.node.kubernetes.io/pci-10de.present" = "true"
+        "nvidia.com/gpu" = "present"
       }
     }
   }

@@ -187,6 +187,40 @@ Do you want to perform these actions?
   Enter a value:
 ```
 
-Type `yes` and hit enter to start building the VPC and EKS cluster. The full deployment process often takes 30-40 minutes.
+Type `yes` and hit enter to start building the NVIDIA Device Plugin, AWS Load Balancer Controller, and finally, vLLM Production Stack.
 
 ### Run Inference Against vLLM From Your Local Machine
+
+If the apply completes successfully, you should now be able to get your AWS load balancer endpoint, and run a curl command against your endpoint that will run inference against your vLLM deployment. You can run the command below to get your vLLM load balancer endpoint:
+
+```bash
+kubectl get ing -n vllm -o json | jq -r .items[0].status.loadBalancer.ingress[0].hostname
+export VLLM_HOSTNAME=$(kubectl get ing -n vllm -o json | jq -r .items[0].status.loadBalancer.ingress[0].hostname)
+```
+
+If you use `zsh` instead of `bash`, you will need to escape the square brackets as shown below:
+
+```zsh
+kubectl get ing -n vllm -o json | jq -r .items\[0\].status.loadBalancer.ingress\[0\].hostname
+export VLLM_HOSTNAME=$(kubectl get ing -n vllm -o json | jq -r .items\[0\].status.loadBalancer.ingress\[0\].hostname)
+```
+
+Copy the hostname, which should be something like `vllm-router-alb-1731301652.us-west-2.elb.amazonaws.com`. You can now test that you can hit the endpoint using the command below:
+
+```bash
+curl $VLLM_HOSTNAME/v1/models
+```
+
+You should see a JSON list of deployed models. If you see the list, you can move on to testing that the model inference works using the command below:
+
+```bash
+curl $VLLM_HOSTNAME/v1/chat/completions \
+    -H "Content-Type: application/json" \
+    -d '{
+        "model": "facebook/opt-125m",
+        "messages": [
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": "Who won the world series in 2020?"}
+        ]
+    }'
+```
